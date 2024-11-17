@@ -28,6 +28,7 @@ import Vehicle from '../page/Vehicle/vehicle';
 const App: React.FC = () => {
   return (
     <BrowserRouter>
+    <h1>Test</h1>
       <Routes>
         <Route path="/" element={<UserPage />} />
         <Route path="/ticket" element={<Ticket />} />
