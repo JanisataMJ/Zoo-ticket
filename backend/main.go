@@ -3,8 +3,9 @@ package main
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"example.com/sa-67-example/config"
+	"example.com/sa-67-example/controller"
+	"github.com/gin-gonic/gin"
 )
 
 const PORT = "8000"
@@ -14,20 +15,24 @@ func main() {
 	// open connection database
 	config.ConnectionDB()
 
+	r := gin.Default()
+	r.Static("/uploads", "./uploads") // กำหนด static route
+
+
 	// Generate databases
 	config.SetupDatabase()
 
-	r := gin.Default()
-
 	r.Use(CORSMiddleware())
 
-	/*router := r.Group("")
+	router := r.Group("")
 	{
-		// Animals Routes
-		
+		// Vehicle Routes
+		router.POST("/vehicles-create", controller.CreateVehicle)
+		router.GET("/vehicles", controller.ListVehicle)
+		router.DELETE("/vehicles/:id", controller.DeleteVehicle)
 		// Other Routes
 		
-	}*/
+	}
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "API RUNNING... PORT: %s", PORT)

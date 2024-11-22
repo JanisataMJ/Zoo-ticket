@@ -1,98 +1,86 @@
-import React from 'react';
-import { Divider, Button } from "antd";
-import { Routes, Route, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
+import "./Rent.css";
 
-import Ticket from "../../page/Ticket/ticket";
-
-const baseStyle: React.CSSProperties = {
-  width: '25vw',  // ขนาดของช่องสี่เหลี่ยม
-  height: '80vh', // ใช้ 40% ของความสูงของหน้าต่าง
-  minWidth: '200px',
-  minHeight: '200px',
-  display: 'flex',
-  justifyContent: 'flex-start',
-  alignItems: 'center',
-  fontWeight: 'bold',
-  textAlign: 'center',
-  flexDirection: 'column', // แสดงข้อมูลในแนวตั้ง
-  borderRadius: '5px',
-  border : '1px solid #DCDCDC',
-};
-
-const titleStyle: React.CSSProperties = {
-  fontSize: '1.5em',  // ขนาดตัวหนังสือใหญ่ขึ้น
-  fontWeight: 'bold', // ทำให้ตัวหนังสือหนา
-  color: 'black',     // สีตัวหนังสือเป็นขาว
-  marginBottom: '8px', // เพิ่มช่องว่างด้านล่าง
-};
-
-const descriptionStyle: React.CSSProperties = {
-  fontSize: '1.2em',  // ขนาดตัวหนังสือ
-  color: 'black',      // สีตัวหนังสือเป็นขาว
-  marginBottom: '8px', // เพิ่มช่องว่างด้านล่าง
-};
-
-const priceStyle: React.CSSProperties = {
-  fontSize: '1.2em',  // ขนาดตัวหนังสือ
-  fontWeight: 'bold', // ทำให้ตัวหนังสือหนา
-  color: '#FFD700',   // สีตัวหนังสือทอง
-};
-
-const userpage: React.FC = () => {
-  const [value, setValue] = React.useState<string>('horizontal');
-  
-  // กำหนดข้อมูลหลายประเภทในแต่ละกล่อง
-  const boxesData = [
-    { title: "Single", description: "Zone A", price: "80 Baht" },
-    { title: "Double", description: "Zone A , B", price: "130 Baht" },
-    { title: "Triple", description: "Zone A , B , C", price: "180 Baht" },
+const ImageGallery: React.FC = () => {
+  const images = [
+    "https://via.placeholder.com/150",
+    "https://via.placeholder.com/150/FF0000",
+    "https://via.placeholder.com/150/00FF00",
+    "https://via.placeholder.com/150/0000FF",
+    "https://via.placeholder.com/150/FFFF00",
+    "https://via.placeholder.com/150/FF00FF",
+    "https://via.placeholder.com/150/00FFFF",
   ];
 
   return (
-    <div 
-      style={{ 
-        height: '100vh', 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        flexDirection: 'column',
-      }}
-    > 
-
-      <div 
-        style={{ 
-          display: 'flex', 
-          flexDirection: value === 'vertical' ? 'column' : 'row',
-          gap: '10px',
-        }}
-      >
-        {boxesData.map((box, i) => (
-          <div 
-            key={i} 
-            style={{ 
-              ...baseStyle, 
-              backgroundColor: i % 2 ? '#FFFAFA' : '#FFFAFA' 
-            }} 
-          >
-            <br />
-            <div style={titleStyle}>{box.title} </div>
-            <Divider />
-            <br />
-            <div style={descriptionStyle}>{box.description}</div>
-            <div style={priceStyle}>{box.price}</div>
-            <Button type="primary">
-              <Link to="/Ticket"><span>หอพักชาย 2</span></Link>
-            </Button>
-          </div>
-        ))}
-      </div>
-        <div>
-          <Routes>
-            <Route path="/ticket" element={<Ticket />} />
-          </Routes>
+    <div className="container">
+      <div className="text"><div>message</div><div>go</div></div>
+      <div className="gallery-container">
+        <div className="image-row">
+          {images.map((src, index) => (
+            <img key={index} src={src} alt={`Gallery ${index}`} className="image" />
+          ))}
         </div>
+      </div>
     </div>
   );
 };
 
-export default userpage;
+const Rent: React.FC = () => {
+  const location = useLocation();
+  const selectedDate = location.state?.selectedDate || "No date selected";
+
+  // สร้างตัวเลือกเวลา
+  const availableTimes = [
+    "08:00",
+    "09:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
+  ];
+
+  const [selectedTime, setSelectedTime] = useState<string>("08:00");
+
+  // คำนวณเวลาเริ่มต้นและสิ้นสุด
+  const startTime = new Date();
+  const [hours] = selectedTime.split(":").map(Number);
+  startTime.setHours(hours, 0, 0);
+
+  const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
+
+  return (
+    <div>
+      <h1>Rent</h1>
+      <p>Selected Date: {selectedDate}</p>
+      <label htmlFor="timePicker">Select Time: </label>
+      <select
+        id="timePicker"
+        value={selectedTime}
+        onChange={(e) => setSelectedTime(e.target.value)}
+      >
+        {availableTimes.map((time) => (
+          <option key={time} value={time}>
+            {time}
+          </option>
+        ))}
+      </select>
+      <p>
+        Period Time:{" "}
+        {startTime.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}{" "}
+        -{" "}{endTime.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
+      </p>
+      <div>Golf Cart </div>
+      <ImageGallery />
+    </div>
+  );
+};
+
+export default Rent;
+
+

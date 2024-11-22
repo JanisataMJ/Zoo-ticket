@@ -1,10 +1,10 @@
 import React from 'react'
-import { Button, Modal, DatePicker, Space } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Button, Modal, Space } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import { Link } from "react-router-dom";
 
 const Booked = () => {
-    const [modal, contextHolder] = Modal.useModal();
+  const [modal, contextHolder] = Modal.useModal();
 
   const paid = () => {
     modal.confirm({
@@ -29,8 +29,14 @@ const Booked = () => {
     <>
     Booked
       <Space>
-        <Button onClick={paid}>ชำระเงิน</Button>
-        <Button onClick={deleteticket}>ลบ</Button>
+        <div style={{ position: "fixed", bottom: "5%", right: "50px"}}><Button onClick={paid}>Payment</Button></div>
+        <div style={{ position: "fixed", bottom: "5%", left: "50px"}}>
+          <Button onClick={deleteticket} icon={<DeleteOutlined />} danger shape="circle" 
+          style={{
+            padding: 0, // กำหนด padding เป็น 0 เพื่อให้ปุ่มมีขนาดเล็ก
+            width: '40px', // กำหนดความกว้างของปุ่ม
+            height: '40px', // กำหนดความสูงของปุ่ม
+          }} /></div>
       </Space>
       {contextHolder}
     </>

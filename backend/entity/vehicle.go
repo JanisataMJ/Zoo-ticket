@@ -8,10 +8,12 @@ import (
 
 type Vehicle struct {
 	gorm.Model
-	ReceivedDate time.Time
-	Avaliability_status string
-	Price float64
-	Picture string
+	Name string //
+	ReceivedDate time.Time //
+	AvaliabilityStatus string//
+	Price float64 //
+	Picture string ///
+	QuantityVehicle uint //
 
 	VehicleTypeID uint
 	VehicleType   VehicleType `gorm:"foreignKey:VehicleTypeID"`

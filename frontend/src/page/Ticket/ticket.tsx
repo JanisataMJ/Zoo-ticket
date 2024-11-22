@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-import { Button, Modal, DatePicker, Space } from 'antd';
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Button, Modal, DatePicker } from 'antd';
+import { Link, useNavigate } from "react-router-dom";
 import { Divider } from '@mui/material';
 import { FaPaw } from 'react-icons/fa';
 
-const Calendar: React.FC = () => {
+interface CalendarProps {
+  onSelectDate: (date: string | null) => void;
+}
+
+const Calendar: React.FC<CalendarProps> = ({ onSelectDate }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null); // เก็บวันที่ที่เลือก
+
+  useEffect(() => {
+    const savedDate = localStorage.getItem("selectedDate");
+    if (savedDate) {
+      setSelectedDate(savedDate); // โหลดวันที่ที่เก็บไว้ใน localStorage
+      onSelectDate(savedDate); // อัพเดตวันที่ที่เลือกใน Ticket
+    }
+  }, []);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -15,6 +27,8 @@ const Calendar: React.FC = () => {
   const handleDateSelect = (date: any) => {
     const formattedDate = date?.format("YYYY-MM-DD");
     setSelectedDate(formattedDate); // เก็บวันที่ที่เลือก
+    onSelectDate(formattedDate); // ส่งค่าไปยัง Ticket
+    localStorage.setItem("selectedDate", formattedDate); // บันทึกวันที่ลง localStorage
     console.log("Selected date:", formattedDate);
     setIsModalOpen(false); // ปิด Modal เมื่อเลือกวันที่แล้ว
   };
@@ -180,10 +194,12 @@ const Counter: React.FC = () => {
 
 const Ticket: React.FC = () => {
   const [modal, contextHolder] = Modal.useModal();
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const confirm = () => {
     modal.confirm({
-      title: 'Would you like to rent a vehicle ?',
+      title: 'Would you like to rent a vehicle?',
       icon: null,
       content: (
         <div>
@@ -197,12 +213,10 @@ const Ticket: React.FC = () => {
           <p>Golf Cart for 6 people  ฿150</p>
         </div>
       ),
-      okText: <Link to="/rent">Rent</Link>,
-      cancelText: <Link to="/booked">No,Thanks</Link>,
-      closable: true, // เพิ่มกากบาทปิดมุมขวาบน
-      onCancel: () => {
-        console.log('Modal closed');
-      },
+      okText: "Rent",
+      cancelText: "No, Thanks",
+      onOk: () => navigate("/rent", { state: { selectedDate } }), // นำทางไปยัง Rent เมื่อกด OK
+      onCancel: () => navigate("/booked"), // นำทางไปยัง Booked เมื่อกด Cancel
     });
   };
 
@@ -210,7 +224,7 @@ const Ticket: React.FC = () => {
     <>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '90vh', textAlign: 'center' }} >
         <div style={{ marginTop: '60px' ,fontSize: '50px'}} >TICKET</div>
-        <div style={{ padding: '40px' }} ><Calendar /></div>
+        <div style={{ padding: '40px' }} ><Calendar onSelectDate={(date) => setSelectedDate(date)} /></div>
         <Divider style={{ width: '80vw', borderBottom: '1px solid #b3b6b7' }} />
         <div style={{ display: 'flex', padding: '20px', justifyContent: 'space-between', alignItems: 'center', width: '75%' }}>
           <div style={{ fontSize: '30px' }} >Child </div>
@@ -234,7 +248,7 @@ const Ticket: React.FC = () => {
         </div>
         <Divider style={{ width: '80vw', borderBottom: '1px solid #b3b6b7' }} />
       </div>
-          <div style={{ position: "fixed", bottom: "40px", right: "50px"}}>
+          <div style={{ position: "fixed", bottom: "5%", right: "50px"}}>
           <Button 
             onClick={confirm}
             style={{
@@ -251,7 +265,7 @@ const Ticket: React.FC = () => {
             }} >
               Next
           </Button>
-          </div>
+        </div>
         {contextHolder}
     </>
   );
