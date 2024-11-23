@@ -126,64 +126,99 @@ func ListVehicle(c *gin.Context) {
 	c.JSON(http.StatusOK, vehicle)
 }
 
-/*
-
-func GetAnimalById(c *gin.Context) {
+func GetVehicleById(c *gin.Context) {
 	id := c.Param("id") 
 	db := config.DB()
 
-	var animal entity.Animal
+	var vehicle entity.Vehicle
 
-	if err := db.Preload("Sex").Preload("Biological").Preload("Behavioral").Preload("Employee").Preload("Habitat").Where("id = ?", id).First(&animal).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Animal not found"})
+	if err := db.Preload("VehicleType").Preload("Employee").Where("id = ?", id).First(&vehicle).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Vehicle not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, animal)
+	c.JSON(http.StatusOK, vehicle)
 }
 
-func UpdateAnimal(c *gin.Context) {
-    var animal entity.Animal
+func UpdateVehicle(c *gin.Context) {
+    var vehicle entity.Vehicle
     db := config.DB()
 
-
+    // รับ ID ของ Vehicle ที่จะอัปเดต
     id := c.Param("id")
     if id == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Missing animal ID"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Missing vehicle ID"})
         return
     }
 
-
-    if err := db.Where("id = ?", id).First(&animal).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Animal not found"})
+    // ค้นหาข้อมูล Vehicle จากฐานข้อมูล
+    if err := db.Where("id = ?", id).First(&vehicle).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Vehicle not found"})
         return
     }
 
-
+    // Parse ข้อมูลจากฟอร์ม
     if err := c.Request.ParseMultipartForm(32 << 20); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form"})
         return
     }
 
-
-    animal.Name = c.PostForm("Name")
-    weight := c.PostForm("Weight")
-    height := c.PostForm("Height")
-    animal.Description = c.PostForm("Description")
-
-
-    if weight != "" {
-        if w, err := strconv.ParseFloat(weight, 64); err == nil {
-            animal.Weight = w
-        }
-    }
-    if height != "" {
-        if h, err := strconv.ParseFloat(height, 64); err == nil {
-            animal.Height = h
+    // อัปเดตข้อมูลฟิลด์ที่สามารถแก้ไขได้
+    vehicle.Name = c.PostForm("Name")
+    
+    // อัปเดตราคา
+    priceStr := c.PostForm("PriceForRent")
+    if priceStr != "" {
+        price, err := strconv.ParseFloat(priceStr, 64)
+        if err == nil {
+            vehicle.Price = price
+        } else {
+            c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid price format: %v", err)})
+            return
         }
     }
 
-    file, err := c.FormFile("Picture")
+    // อัปเดตจำนวน
+    quantityStr := c.PostForm("QuantityVehicle")
+    if quantityStr != "" {
+        quantity, err := strconv.ParseInt(quantityStr, 10, 64)
+        if err == nil {
+            vehicle.QuantityVehicle = uint(quantity)
+        } else {
+            c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid quantityVehicle format: %v", err)})
+            return
+        }
+    }
+
+    // อัปเดตวันที่รับ
+    receivedDateStr := c.PostForm("ReceivedDate")
+    if receivedDateStr != "" {
+        receivedDate, err := time.Parse("2006-01-02", receivedDateStr)
+        if err == nil {
+            vehicle.ReceivedDate = receivedDate
+        } else {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format"})
+            return
+        }
+    }
+
+    // อัปเดตสถานะการใช้งาน
+    vehicle.AvaliabilityStatus = c.PostForm("Status")
+
+    // อัปเดตชนิดของรถ
+    vehicleTypeID, err := strconv.ParseUint(c.PostForm("Type"), 10, 32)
+    if err == nil {
+        vehicle.VehicleTypeID = uint(vehicleTypeID)
+    }
+
+    // อัปเดตพนักงานที่เกี่ยวข้อง
+    employeeID, err := strconv.ParseUint(c.PostForm("employeeID"), 10, 32)
+    if err == nil {
+        vehicle.EmployeeID = uint(employeeID)
+    }
+
+    // ถ้ามีไฟล์ภาพใหม่ให้บันทึก
+    file, err := c.FormFile("picture")
     if err == nil && file != nil {
         uploadDir := "uploads"
         if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
@@ -197,18 +232,23 @@ func UpdateAnimal(c *gin.Context) {
             return
         }
 
-        animal.Picture = filePath
+        vehicle.Picture = filePath
     }
 
-    if err := db.Save(&animal).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to update animal: %v", err)})
+    // อัปเดตข้อมูลในฐานข้อมูล
+    if err := db.Save(&vehicle).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to update vehicle: %v", err)})
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"message": "Animal updated successfully", "data": animal})
+    // ส่งข้อมูลที่อัปเดตกลับไป
+    c.JSON(http.StatusOK, gin.H{
+        "message": "Vehicle updated successfully",
+        "data":    vehicle,
+    })
 }
 
-func ServeImage(c *gin.Context) {
+/*func ServeImage(c *gin.Context) {
     fileName := c.Param("filename")
     filePath := filepath.Join("uploads", fileName)
 

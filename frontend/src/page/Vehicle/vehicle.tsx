@@ -3,7 +3,7 @@ import { Space, Table, Button, Col, Row, Divider, Modal, message } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { GetVehicle, DeleteVehicleByID } from "../../services/https";
-import { VehicleInterface } from "../../interface/Ivehicle";
+import { VehicleInterface } from "../../interface/IVehicle";
 import { Link, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 
@@ -60,7 +60,11 @@ function Vehicle() {
       key: "manage",
       render: (text, record, index) => (
         <>
-          <Button shape="circle" icon={<EditOutlined />} size={"large"} />
+          <Button 
+            onClick={() => navigate(`/vehicles/edit/${record.ID}`)}
+            shape="circle"
+            icon={<EditOutlined />}
+            size={"large"} />
           <Button
             onClick={() => showModal(record)}
             style={{ marginLeft: 10 }}

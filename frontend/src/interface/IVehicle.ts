@@ -1,5 +1,5 @@
 import { EmployeeInterface } from "../interface/IEmployee"
-import { VehicleTypeInterface } from "../interface/IvehicleType"
+import { VehicleTypeInterface } from "../interface/IVehicleType"
 
 export interface VehicleInterface {
     ID?: number;

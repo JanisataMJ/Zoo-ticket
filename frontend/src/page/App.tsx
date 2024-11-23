@@ -10,6 +10,7 @@ import TopBar from '../page/Vehicle/topbar';
 import Vehicle from '../page/Vehicle/vehicle';
 import Create from '../page/Vehicle/create';
 import Rental from '../page/Vehicle/rental';
+import Edit from '../page/Vehicle/update';
 
 const App: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ const App: React.FC = () => {
           <Route path="/vehicle" element={<Vehicle />} />
           <Route path="/rental" element={<Rental />} />
           <Route path="/create" element={<Create />} />
+          <Route path="/vehicles/edit/:id" element={<Edit />} />
         </Route>
       </Routes>
     </BrowserRouter>

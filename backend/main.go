@@ -25,11 +25,15 @@ func main() {
 	r.Use(CORSMiddleware())
 
 	router := r.Group("")
-	{
+	{	
+		//router.GET("/uploads/:filename", controller.ServeImage)
+
 		// Vehicle Routes
 		router.POST("/vehicles-create", controller.CreateVehicle)
 		router.GET("/vehicles", controller.ListVehicle)
 		router.DELETE("/vehicles/:id", controller.DeleteVehicle)
+		router.GET("/vehicles/:id", controller.GetVehicleById)
+		r.PATCH("/vehicles/:id", controller.UpdateVehicle)
 		// Other Routes
 		
 	}
