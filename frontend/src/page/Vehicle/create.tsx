@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Button, DatePicker, Form, Input, InputNumber, Select, TreeSelect, Upload } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Select, TreeSelect, Upload, Row, Col } from 'antd';
 import ImgCrop from 'antd-img-crop';
-import { CreateVehicle } from '../../services/https'; // API Service function
+import { CreateVehicle } from '../../services/https';
+import { useNavigate } from 'react-router-dom';
 
 const Create = () => {
   const [form] = Form.useForm();
@@ -57,108 +58,138 @@ const Create = () => {
 
   return (
     <Form form={form} onFinish={onFinish} layout="vertical" style={{ maxWidth: 600 }}>
-      <Form.Item
-        label="อัปโหลดรูปภาพ"
-        name="picture"
-        valuePropName="fileList"
-        rules={[
-          {
-            required: true,
-            message: 'กรุณาอัปโหลดรูปภาพ',
-            validator: () => {
-              return fileList.length > 0
-                ? Promise.resolve()
-                : Promise.reject(new Error('กรุณาอัปโหลดรูปภาพ'));
-            },
-          },
-        ]}
-      >
-        <ImgCrop rotationSlider>
-          <Upload
-            fileList={fileList}
-            onChange={onChange}
-            onPreview={onPreview}
-            beforeUpload={(file) => {
-              setFileList([file]);
-              return false;
-            }}
-            maxCount={1}
-            listType="picture-card"
+      <Row gutter={16}>
+        <Col span={12}>
+          <Form.Item
+            label="อัปโหลดรูปภาพ"
+            name="picture"
+            valuePropName="fileList"
+            rules={[
+              {
+                required: true,
+                message: 'กรุณาอัปโหลดรูปภาพ',
+                validator: () => {
+                  return fileList.length > 0
+                    ? Promise.resolve()
+                    : Promise.reject(new Error('กรุณาอัปโหลดรูปภาพ'));
+                },
+              },
+            ]}
           >
-            {fileList.length < 1 && (
-              <div>
-                <div style={{ marginTop: 8 }}>อัปโหลด</div>
-              </div>
-            )}
-          </Upload>
-        </ImgCrop>
-      </Form.Item>
+            <ImgCrop rotationSlider>
+              <Upload
+                fileList={fileList}
+                onChange={onChange}
+                onPreview={onPreview}
+                beforeUpload={(file) => {
+                  setFileList([file]);
+                  return false;
+                }}
+                maxCount={1}
+                listType="picture-card"
+              >
+                {fileList.length < 1 && (
+                  <div>
+                    <div style={{ marginTop: 8 }}>อัปโหลด</div>
+                  </div>
+                )}
+              </Upload>
+            </ImgCrop>
+          </Form.Item>
+        </Col>
 
-      <Form.Item label="ชื่อ" name="Name" rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}>
-        <Input />
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item
+            label="ราคาค่าเช่า"
+            name="Price for rent"
+            rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
+          >
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
+        </Col>
 
-      <Form.Item
-        label="ราคาค่าเช่า"
-        name="Price for rent"
-        rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
-      >
-        <InputNumber style={{ width: '100%' }} />
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item
+            label="ชื่อ"
+            name="Name"
+            rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
+          >
+            <Input />
+          </Form.Item>
+        </Col>
 
-      <Form.Item
-        label="จำนวนยานพาหนะ"
-        name="QuantityVehicle"
-        rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
-      >
-        <InputNumber style={{ width: '100%' }} />
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item
+            label="จำนวนยานพาหนะ"
+            name="QuantityVehicle"
+            rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
+          >
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
+        </Col>
 
-      <Form.Item
-        label="วันที่ได้รับ"
-        name="Received Date"
-        rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
-      >
-        <DatePicker />
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item
+            label="วันที่ได้รับ"
+            name="Received Date"
+            rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
+          >
+            <DatePicker style={{ width: '100%' }} />
+          </Form.Item>
+        </Col>
 
-      <Form.Item
-        label="สถานะ"
-        name="Status"
-        rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
-      >
-        <Select>
-          <Select.Option value="Available">พร้อมใช้งาน</Select.Option>
-          <Select.Option value="Unavailable">ไม่พร้อมใช้งาน</Select.Option>
-        </Select>
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item
+            label="สถานะ"
+            name="Status"
+            rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
+          >
+            <Select>
+              <Select.Option value="Available">พร้อมใช้งาน</Select.Option>
+              <Select.Option value="Unavailable">ไม่พร้อมใช้งาน</Select.Option>
+            </Select>
+          </Form.Item>
+        </Col>
 
-      <Form.Item
-        label="ประเภท"
-        name="Type"
-        rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
-      >
-        <TreeSelect
-          treeData={[
-            { title: 'จักรยาน', value: '1' },
-            { title: 'รถกอล์ฟ', value: '2' },
-          ]}
-        />
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item
+            label="ประเภท"
+            name="Type"
+            rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
+          >
+            <TreeSelect
+              treeData={[
+                { title: 'จักรยาน', value: '1' },
+                { title: 'รถกอล์ฟ', value: '2' },
+              ]}
+            />
+          </Form.Item>
+        </Col>
 
-      <Form.Item
-        label="รหัสพนักงาน"
-        name="EmployeeID"
-        rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
-      >
-        <Input />
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item
+            label="รหัสพนักงาน"
+            name="EmployeeID"
+            rules={[{ required: true, message: 'กรุณากรอกข้อมูล!' }]}
+          >
+            <Input />
+          </Form.Item>
+        </Col>
 
-      <Button type="primary" htmlType="submit">
-        ส่งข้อมูล
-      </Button>
+        <Col span={24}>
+          <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+            Confirm
+          </Button>
+        </Col>
+      </Row>
     </Form>
   );
 };
 
 export default Create;
+
+/*<Link to="/vehicle">
+        <Button type="primary" htmlType="submit">
+          ส่งข้อมูล
+        </Button>
+      </Link>*/

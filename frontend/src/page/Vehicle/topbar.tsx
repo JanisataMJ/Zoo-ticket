@@ -3,8 +3,6 @@ import { Layout, Menu, Breadcrumb, theme } from 'antd';
 import { Link, Outlet } from 'react-router-dom';
 
 const { Header, Content, Footer } = Layout;
-
-// ข้อมูลเมนู
 const items1 = [
   { key: 'vehicle', label: <Link to="/vehicle">Vehicle</Link> },
   { key: 'rental', label: <Link to="/rental">Rental</Link> },
@@ -36,7 +34,6 @@ const TopBar: React.FC = () => {
           }}
         >
           <Content style={{ padding: '0 24px', minHeight: 280 }}>
-            {/* ตำแหน่งสำหรับเปลี่ยนเนื้อหา */}
             <Outlet />
           </Content>
         </Layout>
