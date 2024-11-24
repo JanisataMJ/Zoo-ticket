@@ -68,23 +68,13 @@ export const CreateVehicle = async (formData: FormData): Promise<any | false> =>
     return res;
   }
 
-  async function UpdateVehicle(data: VehicleInterface, file?: File) {
-    const formData = new FormData();
-    console.log(data)
-    for (const key in data) {
-      formData.append(key, data[key as keyof VehicleInterface] as string);
-    }
-  
-    if (file) {
-      formData.append("Picture", file);
-    }
-  
+  async function UpdateVehicle(formData: FormData) {
     const requestOptions = {
       method: "PATCH",
       body: formData,
     };
   
-    let res = await fetch(`${apiUrl}/vehicles/${data.ID}`, requestOptions)
+    let res = await fetch(`${apiUrl}/vehicles/${formData.get("ID")}`, requestOptions)
       .then((res) => {
         if (res.status === 200) {
           return res.json();
@@ -95,8 +85,10 @@ export const CreateVehicle = async (formData: FormData): Promise<any | false> =>
   
     return res;
   }
+  
 
   async function GetVehicleById(id: Number | undefined) {
+    
     const requestOptions = {
       method: "GET"
     };

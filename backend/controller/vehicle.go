@@ -141,111 +141,116 @@ func GetVehicleById(c *gin.Context) {
 }
 
 func UpdateVehicle(c *gin.Context) {
-    var vehicle entity.Vehicle
-    db := config.DB()
+	var vehicle entity.Vehicle
+	db := config.DB()
 
-    // รับ ID ของ Vehicle ที่จะอัปเดต
-    id := c.Param("id")
-    if id == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Missing vehicle ID"})
-        return
-    }
+	// รับ ID ของ Vehicle ที่จะอัปเดต
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing vehicle ID"})
+		return
+	}
 
-    // ค้นหาข้อมูล Vehicle จากฐานข้อมูล
-    if err := db.Where("id = ?", id).First(&vehicle).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Vehicle not found"})
-        return
-    }
+	// ค้นหาข้อมูล Vehicle จากฐานข้อมูล
+	if err := db.Where("id = ?", id).First(&vehicle).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Vehicle not found"})
+		return
+	}
 
-    // Parse ข้อมูลจากฟอร์ม
-    if err := c.Request.ParseMultipartForm(32 << 20); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form"})
-        return
-    }
+	// Parse ข้อมูลจากฟอร์ม
+	if err := c.Request.ParseMultipartForm(32 << 20); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form"})
+		return
+	}
 
-    // อัปเดตข้อมูลฟิลด์ที่สามารถแก้ไขได้
-    vehicle.Name = c.PostForm("Name")
-    
-    // อัปเดตราคา
-    priceStr := c.PostForm("PriceForRent")
-    if priceStr != "" {
-        price, err := strconv.ParseFloat(priceStr, 64)
-        if err == nil {
-            vehicle.Price = price
-        } else {
-            c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid price format: %v", err)})
-            return
-        }
-    }
+	// อัปเดตข้อมูลฟิลด์ที่สามารถแก้ไขได้
+	vehicle.Name = c.PostForm("Name")
 
-    // อัปเดตจำนวน
-    quantityStr := c.PostForm("QuantityVehicle")
-    if quantityStr != "" {
-        quantity, err := strconv.ParseInt(quantityStr, 10, 64)
-        if err == nil {
-            vehicle.QuantityVehicle = uint(quantity)
-        } else {
-            c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid quantityVehicle format: %v", err)})
-            return
-        }
-    }
+	// อัปเดตราคา
+	priceStr := c.PostForm("PriceForRent")
+	if priceStr != "" {
+		price, err := strconv.ParseFloat(priceStr, 64)
+		if err == nil {
+			vehicle.Price = price
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid price format: %v", err)})
+			return
+		}
+	}
 
-    // อัปเดตวันที่รับ
-    receivedDateStr := c.PostForm("ReceivedDate")
-    if receivedDateStr != "" {
-        receivedDate, err := time.Parse("2006-01-02", receivedDateStr)
-        if err == nil {
-            vehicle.ReceivedDate = receivedDate
-        } else {
-            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format"})
-            return
-        }
-    }
+	// อัปเดตจำนวน
+	quantityStr := c.PostForm("QuantityVehicle")
+	if quantityStr != "" {
+		quantity, err := strconv.ParseInt(quantityStr, 10, 64)
+		if err == nil {
+			vehicle.QuantityVehicle = uint(quantity)
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid quantityVehicle format: %v", err)})
+			return
+		}
+	}
 
-    // อัปเดตสถานะการใช้งาน
-    vehicle.AvaliabilityStatus = c.PostForm("Status")
+	// อัปเดตวันที่รับ
+	receivedDateStr := c.PostForm("ReceivedDate")
+	if receivedDateStr != "" {
+		receivedDate, err := time.Parse("2006-01-02", receivedDateStr)
+		if err == nil {
+			vehicle.ReceivedDate = receivedDate
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format"})
+			return
+		}
+	}
 
-    // อัปเดตชนิดของรถ
-    vehicleTypeID, err := strconv.ParseUint(c.PostForm("Type"), 10, 32)
-    if err == nil {
-        vehicle.VehicleTypeID = uint(vehicleTypeID)
-    }
+	// อัปเดตสถานะการใช้งาน
+	vehicle.AvaliabilityStatus = c.PostForm("Status")
 
-    // อัปเดตพนักงานที่เกี่ยวข้อง
-    employeeID, err := strconv.ParseUint(c.PostForm("employeeID"), 10, 32)
-    if err == nil {
-        vehicle.EmployeeID = uint(employeeID)
-    }
+	// อัปเดตชนิดของรถ
+	vehicleTypeID, err := strconv.ParseUint(c.PostForm("Type"), 10, 32)
+	if err == nil {
+		vehicle.VehicleTypeID = uint(vehicleTypeID)
+	}
 
-    // ถ้ามีไฟล์ภาพใหม่ให้บันทึก
-    file, err := c.FormFile("picture")
-    if err == nil && file != nil {
-        uploadDir := "uploads"
-        if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create upload directory"})
-            return
-        }
+	// อัปเดตพนักงานที่เกี่ยวข้อง
+	employeeID, err := strconv.ParseUint(c.PostForm("EmployeeID"), 10, 32)
+	if err == nil {
+		vehicle.EmployeeID = uint(employeeID)
+	}
 
-        filePath := filepath.Join(uploadDir, file.Filename)
-        if err := c.SaveUploadedFile(file, filePath); err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image"})
-            return
-        }
+	// ถ้ามีไฟล์ภาพใหม่ให้บันทึก
+	file, err := c.FormFile("picture")
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+	} else {
+		uploadDir := "uploads"
+		if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create upload directory"})
+			return
+		}
 
-        vehicle.Picture = filePath
-    }
+		fileName := fmt.Sprintf("%d_%s", time.Now().Unix(), file.Filename)
+		filePath := filepath.Join(uploadDir, fileName)
 
-    // อัปเดตข้อมูลในฐานข้อมูล
-    if err := db.Save(&vehicle).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to update vehicle: %v", err)})
-        return
-    }
+		if err := c.SaveUploadedFile(file, filePath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image"})
+			return
+		}
 
-    // ส่งข้อมูลที่อัปเดตกลับไป
-    c.JSON(http.StatusOK, gin.H{
-        "message": "Vehicle updated successfully",
-        "data":    vehicle,
-    })
+		vehicle.Picture = fileName
+	}
+
+
+	// อัปเดตข้อมูลในฐานข้อมูล
+	if err := db.Save(&vehicle).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to update vehicle: %v", err)})
+		return
+	}
+
+	// ส่งข้อมูลที่อัปเดตกลับไป
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Vehicle updated successfully",
+		"data":    vehicle,
+	})
 }
 
 /*func ServeImage(c *gin.Context) {
